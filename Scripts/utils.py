@@ -46,7 +46,7 @@ def sub_lister(a_list, num) -> list:
     return [a_list[i:i + num] for i in range(0, len(a_list), num)]
 
 
-def super_dict(nested_list: list, label: list) -> dict:
+def label_dict(nested_list: list, label: list) -> dict:
     """create a dictionary for each path labels"""
     yolo_dict = {}
     for sub_list_index in range(len(nested_list)):
@@ -55,7 +55,7 @@ def super_dict(nested_list: list, label: list) -> dict:
     return yolo_dict
 
 
-def extract_small_dict(a_dict: dict, datatypes: list) -> list:
+def dicts_for_datatypes(a_dict: dict, datatypes: list) -> list:
     """create a list of dictionaries, where each datatypes gets a list of values from another dictionary"""
     name_dict = []
     for i in range(len(datatypes)):
@@ -63,7 +63,7 @@ def extract_small_dict(a_dict: dict, datatypes: list) -> list:
     return name_dict
 
 
-def ultra_mega_dict(a_dict, list_of_dicts) -> dict:
+def dict_merger(a_dict, list_of_dicts) -> dict:
     """merge dictionaries together"""
     for i in list_of_dicts:
         a_dict.update(i)
