@@ -12,50 +12,6 @@ hops: hs.HopsFlask = hs.Hops(app)
 
 
 @hops.component(
-    "/export",
-    name="export df",
-    nickname="edf",
-    description="Export df as string",
-    inputs=[
-        hs.HopsString("Data as tree", "Dt", "Data tree to convert", hs.HopsParamAccess.TREE),
-        hs.HopsString("Tree structure labels", "L", "List of the path labels (what the tree structure represent)",
-                      hs.HopsParamAccess.LIST),
-        hs.HopsString("Datatype", "D", "What does the data represent? Number of elements should match the number of"
-                                       "elements in each branches of the datatree", hs.HopsParamAccess.LIST),
-        hs.HopsBoolean("Export", "E", "Set to True to export to csv file")
-    ],
-    outputs=[]
-)
-def better(data_tree: dict, path_labels: list, data_type: list, run=False):
-    if len(list(data_tree.keys())[0]) != len(data_type):
-        # THROW A WARNING !!
-        #
-        pass
-
-    clean_tree = clean_dict_datatype(data_tree)
-    renamed_tree = temp_rename_dict(clean_tree)
-    temp_list = list_key_path(renamed_tree)
-    partitioned = sub_lister(temp_list, len(path_labels))
-
-    # I guess we do an equivalent to flip matrix in gh?
-    transposed = list(map(lambda *a: list(a), *partitioned))
-
-    data_less_dict = super_dict(transposed, path_labels)
-    data_dict = extract_small_dict(data_tree, data_type)
-    final_dict = ultra_mega_dict(data_less_dict, data_dict)
-    the_dataframe = pd.DataFrame.from_dict(final_dict)
-
-    # format incompatibility fix
-    the_actual_dataframe = fix_one_item_list(the_dataframe, data_type)
-
-    filename = "Z:\\Shared\\Documents\\Sharedrive\\A2M data\\IN - IN\\D&B\\Grasshopper\\Hops\\Pandas+Seaborn" \
-               "\\Pandas+Seaborn_v10\\dataframe.csv"
-
-    if run:
-        the_actual_dataframe.to_csv(filename, index=False, line_terminator='@')
-
-
-@hops.component(
     "/dt_to_df",
     name="datatree to dataframe",
     nickname="dtdf",
@@ -76,19 +32,19 @@ def better(data_tree: dict, path_labels: list, data_type: list):
 
     if len(list(data_tree.keys())[0]) != len(data_type):
         # THROW A WARNING !!
+        # Hops limitation. If needed, just print stuff, and keep checking terminal window
         pass
 
     clean_tree = clean_dict_datatype(data_tree)
-    renamed_tree = temp_rename_dict(clean_tree)
-    temp_list = list_key_path(renamed_tree)
+    renamed_key = temp_rename_dict(clean_tree)
+    temp_list = list_key_path(renamed_key)
     partitioned = sub_lister(temp_list, len(path_labels))
 
-    # I guess we do an equivalent to flip matrix in gh?
     transposed = list(map(lambda *a: list(a), *partitioned))
 
-    data_less_dict = super_dict(transposed, path_labels)
-    data_dict = extract_small_dict(data_tree, data_type)
-    final_dict = ultra_mega_dict(data_less_dict, data_dict)
+    path_dict = label_dict(transposed, path_labels)
+    dict_list = dicts_for_datatypes(data_tree, data_type)
+    final_dict = dict_merger(path_dict, dict_list)
     the_dataframe = pd.DataFrame.from_dict(final_dict)
 
     # format incompatibility fix
