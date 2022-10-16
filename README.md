@@ -1,5 +1,6 @@
 # Hops_plots
-Small tool that brings Seaborn (Matplotlib) inside of Grasshopper using [Hops](https://github.com/mcneel/compute.rhino3d/tree/master/src/ghhops-server-py).\n
+Small tool that brings Seaborn (Matplotlib) inside of Grasshopper using [Hops](https://github.com/mcneel/compute.rhino3d/tree/master/src/ghhops-server-py).
+
 Updated version : [monsieurpablo's repo](https://github.com/monsieurpablo/seaborn_grasshopper)
 
 ## More information
