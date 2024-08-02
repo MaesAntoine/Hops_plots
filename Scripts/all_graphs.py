@@ -1,28 +1,30 @@
 from matplotlib import pyplot as plt
 import seaborn as sns
+import io
+import base64
 
 
 # ---------------------------------
 # RELATIONAL PLOTS
 
-
 def rel(g_dt, g_x_ax, g_y_ax, g_hue, g_palette):
     # https://seaborn.pydata.org/generated/seaborn.relplot.html#seaborn.relplot
-    if g_hue == '':
-        sns.relplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            palette=g_palette
-        )
-    else:
-        sns.relplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            hue=g_hue,
-            palette=g_palette
-        )
+
+    # mandatory args
+    plot_args = {
+        "data": g_dt,
+        "x": g_x_ax,
+        "y": g_y_ax
+    }
+
+    if g_hue != '':
+        plot_args["hue"] = g_hue
+    
+    if g_palette != '':
+        plot_args["palette"] = g_palette
+    
+    sns.relplot(**plot_args)
+
     plt.show()
     plt.close()
 
@@ -43,24 +45,27 @@ def no_default(g_dt, g_x_ax, g_y_ax, g_palette, g_hue):
 
 
 def scatter(g_dt, g_x_ax, g_y_ax, g_hue, g_palette):
-    # https://seaborn.pydata.org/generated/seaborn.scatterplot.html#seaborn.scatterplot
-    if g_hue == '':
-        sns.scatterplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            palette=g_palette
-        )
-    else:
-        sns.scatterplot(
-            data=g_dt,
-            x=g_x_ax,
-            y=g_y_ax,
-            hue=g_hue,
-            palette=g_palette
-        )
-    plt.show()
-    plt.close()
+    plot_args = {
+        'data': g_dt,
+        'x': g_x_ax,
+        'y': g_y_ax,
+        'hue': g_hue,
+        'palette': g_palette
+    }
+    sns.scatterplot(**plot_args)
+    
+    # Instead of plt.show(), save the plot to a bytes buffer
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    
+    # Encode the image to base64
+    img_str = base64.b64encode(buf.getvalue()).decode()
+    
+    # Clear the current plot
+    plt.clf()
+    
+    return img_str  # Return the base64 encoded string
 
 
 def line(g_dt, g_x_ax, g_y_ax, g_hue, g_palette):

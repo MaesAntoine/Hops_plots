@@ -1,14 +1,20 @@
 from flask import Flask
 import ghhops_server as hs
 import pandas as pd
+import functools
 
 import all_graphs
 from utils import *
+
+import logging
 
 
 # register hops app as middleware
 app = Flask(__name__)
 hops: hs.HopsFlask = hs.Hops(app)
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 @hops.component(
@@ -25,7 +31,7 @@ hops: hs.HopsFlask = hs.Hops(app)
     ],
     outputs=[
         hs.HopsString("DfCSV", "Df", "Dataframe as a csv."
-                                     "\nNote that you might not be able to use panel on this output."),
+                                     "\nNote that you might not be able to use panel on this output.", hs.HopsParamAccess.ITEM),
     ]
 )
 def better(data_tree: dict, path_labels: list, data_type: list):
@@ -50,7 +56,7 @@ def better(data_tree: dict, path_labels: list, data_type: list):
     # format incompatibility fix
     the_actual_dataframe = fix_one_item_list(the_dataframe, data_type)
 
-    return the_actual_dataframe.to_csv(index=False, line_terminator='@')
+    return the_actual_dataframe.to_csv(index=False, lineterminator='@')
 
 
 @hops.component(
@@ -111,7 +117,7 @@ def available_presets(plot_type='categorical', palette_type='default'):
     outputs=[]
 )
 def rel_df(csv_df1: str, x_ax, y_ax, g_hue, g_palette="deep", plot=False):
-    # load csv to df
+    # Your original function code here
     the_dataframe = csv_to_df(csv_df1)
     if plot:
         all_graphs.no_default(the_dataframe, x_ax, y_ax, g_hue, g_palette)
@@ -130,7 +136,7 @@ def rel_df(csv_df1: str, x_ax, y_ax, g_hue, g_palette="deep", plot=False):
         hs.HopsString("Dataframe", "Df", "Dataframe to relplot"),
         hs.HopsString("X axis", "X", "What's your X value?"),
         hs.HopsString("Y axis", "Y", "What's your Y value? Has to refer to numerical values"),
-        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with"),
+        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with", default=None),
         hs.HopsString("Palette", "p", "Seaborn palette for your graph."
                                       "\nInput a valid name or select one from the output of the 'preset' component"
                                       "\nDefault = 'deep'"),
@@ -138,8 +144,16 @@ def rel_df(csv_df1: str, x_ax, y_ax, g_hue, g_palette="deep", plot=False):
     ],
     outputs=[]
 )
-def rel_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool = False):
-    # load csv to df
+def rel_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot=False):
+    print("Function called with:")
+    print(f"csv_df1: {csv_df1}")
+    print(f"x_ax: {x_ax}")
+    print(f"y_ax: {y_ax}")
+    print(f"g_hue: {g_hue}")
+    print(f"g_palette: {g_palette}")
+    print(f"plot: {plot}")
+    
+    # Your original function code here
     the_dataframe = csv_to_df(csv_df1)
     if plot:
         all_graphs.rel(the_dataframe, x_ax, y_ax, g_hue, g_palette)
@@ -147,26 +161,22 @@ def rel_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool = Fa
 
 @hops.component(
     "/scatterplot",
-    name="dataframes scatterploter",
+    name="dataframes scatterplot",
     nickname="scatterDF",
     description="Scatterplot a dataframe",
     inputs=[
         hs.HopsString("Dataframe", "Df", "Dataframe to scatterplot"),
         hs.HopsString("X axis", "X", "What's your X value?"),
-        hs.HopsString("Y axis", "Y", "What's your Y value? Has to refer to numerical values"),
-        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with"),
-        hs.HopsString("Palette", "p", "Seaborn palette for your graph."
-                                      "\nInput a valid name or select one from the output of the 'preset' component"
-                                      "\nDefault = 'deep'"),
-        hs.HopsBoolean("Plot", "P", "Plot me!")
+        hs.HopsString("Y axis", "Y", "What's your Y value?"),
+        hs.HopsString("Hue", "h", "Column value to differentiate X and Y with", default=None),
+        hs.HopsString("Palette", "p", "Seaborn palette for your graph.", default="deep")
     ],
-    outputs=[]
+    outputs=[hs.HopsString("Image", "I", "Base64 encoded image string")]
 )
-def scatter_df(csv_df1: str, x_ax, y_ax, g_hue='', g_palette="deep", plot: bool = False):
-    # load csv to df
+def scatter_df(csv_df1: str, x_ax, y_ax, g_hue, g_palette="deep"):
     the_dataframe = csv_to_df(csv_df1)
-    if plot:
-        all_graphs.scatter(the_dataframe, x_ax, y_ax, g_hue, g_palette)
+    img_str = all_graphs.scatter(the_dataframe, x_ax, y_ax, g_hue, g_palette)
+    return img_str
 
 
 @hops.component(
